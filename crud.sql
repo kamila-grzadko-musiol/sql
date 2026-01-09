@@ -142,3 +142,120 @@ where exists(
     -- Nie interesują nas konkretne dane – dlatego wybieramy 1 – liczy się tylko czy coś istnieje, nie co to jest.
     select 1 from enrollments e where e.student_id = s.id
 );
+
+-- Co się stanie w wyniku powyższego zapytania?
+-- Zostaną zwróceni tylko ci studenci, którzy mają przynajmniej jeden zapis w tabeli enrollments.
+
+-- Możesz również zastosować not exists
+select * from students s
+where not exists(
+    select 1 from enrollments e where e.student_id = s.id
+);
+
+-- Kontynuujemy zapytania zagnieżdżone
+-- kursy, na które zapisany jest student o imieniu 'Anna'
+select * from courses
+where id in (
+  select courses_id from enrollments where student_id in (
+      select  id from students where name = 'Anna'
+    )
+);
+
+-- instrukcja CASE
+-- na początek użyjemy case w select
+select *,
+       round(price * 1.23, 2) as vat_price,
+       case
+            when price > 200 then 'drogi'
+            else 'tani'
+        end as category
+from courses;
+
+select *,
+       round(price * 1.23, 2) as vat_price,
+            if (price > 200, 'drogi' , 'tani') as category
+from courses;
+
+select *,
+       round(price * 1.23, 2) as vat_price,
+       case
+            when price > 300 then 'bardzo drogi'
+            when price > 200 then 'drogi'
+            when price between 50 and 100 then 'drogi'
+            else 'tani'
+        end as category
+from courses;
+
+
+select *,
+       round(price * 1.23, 2) as vat_price,
+       if (price > 300, 'bardzo drogi',
+            if (price > 200, 'drogi',
+                if ( price >= 100, 'sredni', 'tani')
+            )
+       ) as category
+from courses;
+
+-- case /  if jako część logicznego wyrażenia
+select * from courses
+where
+    case title
+        when 'SQL Basics' then price < 150
+        when 'Advances SQL' then price < 150
+        else price < 300
+    end;
+
+-- Uważaj na stosowanie case w warunkach po where bo case bedzie sprawdzany cały
+-- można zapisać ... where (title = 'SQL Basics' and price < 150) or (price < 300)
+
+select * from courses
+where
+    case title
+        when title='SQL Basics' then price < 150
+        when lesson_count > 15 then price < 150
+        else price < 300
+    end;
+
+select * from courses
+where if(hours > 20, price < 300, price > 150);
+
+-- Funkcja IF() w WHERE powinna zawsze zwracać TRUE lub FALSE, bo to warunek logiczny. Jeśli zwróci NULL,
+-- wiersz zostanie odrzucony (jakby warunek był niespełniony).
+
+-- Warunki z datami
+
+-- po okreslonej dacie
+select * from enrollments
+where enrollment_date > '2025-01-01';
+
+-- w okreslonym miesiącu
+select * from enrollments where month(enrollment_date) = 2;
+
+-- w określonym roku
+select * from enrollments where  year(enrollment_date) = 2025;
+
+-- warunki z aliasami i obliczeniami
+
+-- możesz obliczenia wykonać w where
+select * from courses where price / hours > 10;
+
+-- warunek na wyliczonej kolumnie
+select *, (price / hours) as price_per_hour
+from courses
+where (price / hours) < 15;
+
+-- jeśli chcesz mieć pewność, że wyliczenie price / hours wykona się tylko jeden raz
+-- użyj subquery
+
+select * from (
+    select *, round((price / hours), 2) as price_per_hour from courses
+) as sub
+where price_per_hour < 15;
+
+-- COALESCE
+-- rating może być null, więc jak trafi na null w tabelece rating to przypisze wartość 0 coalesce(rating, 0)
+select * from enrollments where coalesce(rating, 0) > 4;
+
+-- NULLIF
+-- pokaż tylko te rekordy, gdzie rating nie jest równy 5, bo jeśli rating jest 5 to nullif zwraca null
+select * from enrollments where nullif(rating, 5) is not null;
