@@ -1,0 +1,51 @@
+use db;
+
+create table students (
+    id int primary key auto_increment,
+    name varchar(100) not null,
+    surname varchar(100) not null,
+    email varchar(100) not null,
+    birth_year year
+);
+
+create table courses (
+    id int primary key auto_increment,
+    title varchar(200),
+    description text,
+    published_year year,
+    hours int,
+    price decimal(10,2),
+    max_enrollments int default 100,
+    lesson_count int default 10
+);
+
+create table enrollments (
+    student_id int,
+    courses_id int,
+    enrollment_date date default (current_date),
+    rating float default null,
+    primary key (student_id, courses_id)
+);
+
+insert into students (name, surname, email, birth_year)
+values ('Anna', 'Kowalska', 'anna@example.com', 1995),
+       ('Piotr', 'Nowak', 'piotr@example.com', 1990),
+       ('Julia', 'Zielinska', 'julia@example.com', 1998);
+
+insert into students (name, surname, email, birth_year)
+values ('Paweł', 'Kowal', 'pawel@gmail.com', 1997);
+
+insert into courses (title, description, published_year, hours, price, max_enrollments, lesson_count)
+values ('SQL Basics', 'Intro SQL', 2022, 12, 129.99, 50, 10),
+       ('Advances SQL', 'Joins, indexes, etc.', 2023, 18, 199.99, 30, 15),
+       ('Data Science', 'ML, Pandas', 2024, 25, 299.99, 25, 20);
+
+insert into enrollments (student_id, courses_id, rating, enrollment_date)
+values (1, 1, 4.5, '2025-01-01'),
+       (1, 2, 4.5, '2025-02-11'),
+       (2, 1, 4.5, '2025-03-21'),
+       (3, 3, null, '2025-02-11');
+
+select * from students;
+select * from courses;
+select * from enrollments;
