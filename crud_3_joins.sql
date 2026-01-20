@@ -35,10 +35,15 @@ values ('Anna', 'Kowalska', 'anna@example.com', 1995),
 
 
 insert into courses (title, description, published_year, hours, price, max_enrollments, lesson_count)
-values ('SQL Basics', 'Intro SQL', 2022, 12, 129.99, 50, 10),
-       ('Advances SQL', 'Joins, indexes, etc.', 2023, 18, 199.99, 30, 15),
-       ('Data Science', 'ML, Pandas', 2024, 25, 299.99, 25, 20),
-       ('AI', 'AI, AI Agents', 2025, 25, 399.99, 26, 22);
+values
+    ('SQL Basics', 'Intro SQL', 2022, 12, 129.99, 50, 10),
+    ('Advanced SQL', 'Joins, indexes, etc.', 2022, 18, 199.99, 30, 15),
+    ('Data Science', 'ML, Pandas', 2024, 12, 599.99, 25, 20),
+    ('AI', 'AI, AI Agents', 2022, 18, 799.99, 26, 22),
+    ('Python', 'Intro Python', 2024, 12, 229.99, 50, 10),
+    ('Java', 'Intro Java', 2023, 18, 599.99, 30, 15),
+    ('C', 'Intro C', 2023, 25, 999.99, 25, 20),
+    ('JS', 'Intro JS', 2023, 25, 99.99, 26, 22);
 
 insert into enrollments (student_id, courses_id, rating, enrollment_date)
 values (1, 1, 4.5, '2025-01-01'),
@@ -197,4 +202,24 @@ select *
 from enrollments e
 left join students s on s.id = e.student_id
 left join courses c on c.id = e.courses_id;
+
+
+select * from courses;
+select * from enrollments;
+select * from students;
+-- ------------------------------------------------------------------------------------------------------------------
+-- UPDATE, DELETE z wykorzystaniem JOINS
+-- ------------------------------------------------------------------------------------------------------------
+
+-- zmieniamy rating na 5.0 dla kursow zwierajacych slowo 'SQL'
+update enrollments e
+join courses c on e.courses_id = c.id
+set e.rating = 5.0, c.title = lower(c.title)
+where c.title like '%SQL%';
+
+-- usuwamy kursy, na które nikt się nie zapisał
+delete c from courses c
+left join enrollments e on c.id = e.courses_id
+where e.courses_id is null;
+
 
